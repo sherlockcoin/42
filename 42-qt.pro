@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET =
-VERSION = 0.7.0.0
+VERSION = 0.8.0.0
 INCLUDEPATH += src src/json src/qt
 DEFINES += QT_GUI BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE USE_IPV6 __NO_SYSTEM_INCLUDES
 CONFIG += no_include_pwd
@@ -21,8 +21,8 @@ CONFIG += no_include_pwd
 #BOOST_LIB_PATH=c:/MinGW-devel/boost_1_53_0/stage/lib
 #BDB_INCLUDE_PATH=c:/MinGW-devel/db-4.8.30.NC/build_unix
 #BDB_LIB_PATH=c:/MinGW-devel/db-4.8.30.NC/build_unix
-#OPENSSL_INCLUDE_PATH=c:/MinGW-devel/openssl-1.0.1e/include
-#OPENSSL_LIB_PATH=c:/MinGW-devel/openssl-1.0.1e
+#OPENSSL_INCLUDE_PATH=c:/MinGW-devel/openssl-1.0.1g/include
+#OPENSSL_LIB_PATH=c:/MinGW-devel/openssl-1.0.1g
 #MINIUPNPC_INCLUDE_PATH=c:/MinGW-devel/miniupnpc-1.8
 #MINIUPNPC_LIB_PATH=c:/MinGW-devel/miniupnpc-1.8
 

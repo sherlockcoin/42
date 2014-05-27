@@ -996,22 +996,32 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
         double                                EventHorizonDeviationSlow;
         
     if (BlockLastSolved == NULL || BlockLastSolved->nHeight == 0 || (uint64)BlockLastSolved->nHeight < PastBlocksMin) { return bnProofOfWorkLimit.GetCompact(); }
-        
-        for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
-                if (PastBlocksMax > 0 && i > PastBlocksMax) { break; }
-                PastBlocksMass++;
-                
-                if (i == 1)        { PastDifficultyAverage.SetCompact(BlockReading->nBits); }
-                else                { PastDifficultyAverage = ((CBigNum().SetCompact(BlockReading->nBits) - PastDifficultyAveragePrev) / i) + PastDifficultyAveragePrev; }
-                PastDifficultyAveragePrev = PastDifficultyAverage;
-                
-                PastRateActualSeconds                        = BlockLastSolved->GetBlockTime() - BlockReading->GetBlockTime();
-                PastRateTargetSeconds                        = TargetBlocksSpacingSeconds * PastBlocksMass;
-                PastRateAdjustmentRatio                        = double(1);
-                if (PastRateActualSeconds < 0) { PastRateActualSeconds = 0; }
-                if (PastRateActualSeconds != 0 && PastRateTargetSeconds != 0) {
-                PastRateAdjustmentRatio                        = double(PastRateTargetSeconds) / double(PastRateActualSeconds);
-                }
+                int64 LatestBlockTime = BlockLastSolved->GetBlockTime();
+                for (unsigned int i = 1; BlockReading && BlockReading->nHeight > 0; i++) {
+                        if (PastBlocksMax > 0 && i > PastBlocksMax) { break; }
+                        PastBlocksMass++;
+
+                        if (i == 1) { PastDifficultyAverage.SetCompact(BlockReading->nBits); }
+                        else { PastDifficultyAverage = ((CBigNum().SetCompact(BlockReading->nBits) - PastDifficultyAveragePrev) / i) + PastDifficultyAveragePrev; }
+                        PastDifficultyAveragePrev = PastDifficultyAverage;
+
+                        if (LatestBlockTime < BlockReading->GetBlockTime()) {
+                                if (BlockReading->nHeight > 159625) LatestBlockTime = BlockReading->GetBlockTime();
+                        }
+                        PastRateActualSeconds = LatestBlockTime - BlockReading->GetBlockTime();
+
+                        PastRateTargetSeconds = TargetBlocksSpacingSeconds * PastBlocksMass;
+                        PastRateAdjustmentRatio = double(1);
+
+                        if (BlockReading->nHeight > 159625) {
+                                if (PastRateActualSeconds < 1) { PastRateActualSeconds = 1; }
+                        } else {
+                                if (PastRateActualSeconds < 0) { PastRateActualSeconds = 0; }
+                        }
+
+		if (PastRateActualSeconds != 0 && PastRateTargetSeconds != 0) {
+		PastRateAdjustmentRatio			= double(PastRateTargetSeconds) / double(PastRateActualSeconds);
+		}
                 EventHorizonDeviation                        = 1 + (0.7084 * pow((double(PastBlocksMass)/double(42)), -1.228));
                 EventHorizonDeviationFast                = EventHorizonDeviation;
                 EventHorizonDeviationSlow                = 1 / EventHorizonDeviation;
@@ -1041,7 +1051,7 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const CBloc
 
 unsigned int static GetNextWorkRequired_V2(const CBlockIndex* pindexLast, const CBlock *pblock)
 {
-        static const int64        BlocksTargetSpacing                        = .7 * 60; // 30 seconds
+        static const int64        BlocksTargetSpacing                        = 0.7 * 60; // 42 seconds
         unsigned int                TimeDaySeconds                                = 60 * 60 * 24;
         int64                       PastSecondsMin                                = TimeDaySeconds * 0.021;
         int64                       PastSecondsMax                                = TimeDaySeconds * 0.06;
